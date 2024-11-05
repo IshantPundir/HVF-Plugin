@@ -1,0 +1,283 @@
+<div style="font-family: Arial, sans-serif; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;">
+  <h2 style="font-size: 1.5em; color: #333; margin-bottom: 10px;">HVF Builder</h2>
+
+  <!-- Tabs navigation -->
+  <div style="display: flex; border-bottom: 1px solid #ddd; margin-bottom: 10px;">
+    <button onclick="showTab('controls')" id="controls-tab" style="flex: 1; padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+      Controls
+    </button>
+    <button onclick="showTab('configuration')" id="config-tab" style="flex: 1; padding: 10px; background-color: #29e6f0; color: white; border: none; cursor: pointer;">
+      Configuration
+    </button>
+  </div>
+
+  <!-- Controls Tab Content -->
+  <div id="controls" style="display: block;">
+    <!-- Existing Controls Form -->
+    <p style="margin-bottom: 10px;">
+      <label for="hvf-id" style="display: block; font-weight: bold; margin-bottom: 4px;">Expression Name</label>
+      <input id="hvf-id" type="text" value="neutral" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"/>
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <p style="flex: 1; margin: 0;">
+        <label for="width" style="display: block; font-weight: bold; margin-bottom: 4px;">Screen Width</label>
+        <input id="width" type="number" value="800" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"/>
+      </p>
+      <p style="flex: 1; margin: 0;">
+        <label for="height" style="display: block; font-weight: bold; margin-bottom: 4px;">Screen Height</label>
+        <input id="height" type="number" value="480" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"/>
+      </p>
+    </div>
+
+    <!-- Profile Selection and Resolution -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <p style="flex: 1; margin: 0;">
+        <label for="profile-select" style="display: block; font-weight: bold; margin-bottom: 4px;">Select Profile</label>
+        <select id="profile-select" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+          <option value="visemes">Visemes</option>
+          <option value="expressions">Expressions</option>
+        </select>
+      </p>
+      <p style="flex: 1; margin: 0;">
+        <label for="resolution" style="display: block; font-weight: bold; margin-bottom: 4px;">Resolution</label>
+        <input id="resolution" type="number" value="10" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"/>
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button id="create"
+              style="flex: 1; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Create
+      </button>
+      <button id="export" 
+              style="flex: 1; padding: 10px; background-color: #e629f0; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Export
+      </button>
+
+      <button id="cancel" 
+              style="flex: 1; padding: 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Configuration Tab Content -->
+  <div id="configuration" style="display: none;">
+    <h3 style="font-size: 1.2em; color: #333; margin-bottom: 10px;">Viseme Configuration</h3>
+
+    <!-- Profile Tabs for Visemes and Expressions -->
+    <div style="display: flex; border-bottom: 1px solid #ddd; margin-bottom: 10px;">
+      <button onclick="showProfile('visemes')" id="visemes-profile-tab" style="flex: 1; padding: 8px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">
+        Visemes
+      </button>
+      <button onclick="showProfile('expressions')" id="expressions-profile-tab" style="flex: 1; padding: 8px; background-color: #ddd; color: #333; border: none; cursor: pointer;">
+        Expressions
+      </button>
+    </div>
+
+    <!-- Viseme Table -->
+    <table id="visemeTable" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: 8px; border: 1px solid #ddd;">Viseme Name</th>
+          <th style="width: 50px; text-align: center; padding: 8px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Add Viseme Button -->
+    <button onclick="addVisemeRow()" style="width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 10px;">
+      Add Viseme
+    </button>
+  </div>
+</div>
+
+
+<script>
+  let activeProfile = 'visemes';
+
+  const profiles = {
+    visemes: [
+      "AE", 
+      "Ah", 
+      "BMP", 
+      "ChJ", 
+      "EE", 
+      "Er", 
+      "FV", 
+      "Ih", 
+      "KGHNG", 
+      "Oh", 
+      "R", 
+      "SZ", 
+      "TLDN", 
+      "Th", 
+      "WOO"
+    ],
+    expressions: [
+      "neutral",
+      "blink",
+      "happy",
+      "sad",
+      "surprised"
+    ]
+  };
+
+  // Function to handle tab switching
+  function showTab(tabName) {
+    document.getElementById("controls").style.display = tabName === 'controls' ? 'block' : 'none';
+    document.getElementById("configuration").style.display = tabName === 'configuration' ? 'block' : 'none';
+
+    document.getElementById("controls-tab").style.backgroundColor = tabName === 'controls' ? '#4CAF50' : '#ddd';
+    document.getElementById("config-tab").style.backgroundColor = tabName === 'configuration' ? '#29e6f0' : '#ddd';
+  }
+
+  // Function to handle profile switching
+  function showProfile(profileName) {
+    activeProfile = profileName;
+    document.getElementById("visemes-profile-tab").style.backgroundColor = profileName === 'visemes' ? '#4CAF50' : '#ddd';
+    document.getElementById("expressions-profile-tab").style.backgroundColor = profileName === 'expressions' ? '#4CAF50' : '#ddd';
+    loadProfileData();
+  }
+
+  // Function to add a new row in the viseme table
+  function addVisemeRow() {
+    const tableBody = document.getElementById("visemeTable").querySelector("tbody");
+    const row = document.createElement("tr");
+
+    const nameCell = document.createElement("td");
+    nameCell.style.padding = "8px";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Enter viseme name";
+    input.style.width = "100%";
+    nameCell.appendChild(input);
+
+    const actionCell = document.createElement("td");
+    actionCell.style.textAlign = "center";
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "✕";
+    deleteButton.style.backgroundColor = "#f44336";
+    deleteButton.style.color = "white";
+    deleteButton.style.border = "none";
+    deleteButton.style.borderRadius = "4px";
+    deleteButton.style.cursor = "pointer";
+    deleteButton.onclick = () => {
+      const index = Array.from(tableBody.children).indexOf(row);
+      profiles[activeProfile].splice(index, 1);
+      row.remove();
+    };
+    actionCell.appendChild(deleteButton);
+
+    row.appendChild(nameCell);
+    row.appendChild(actionCell);
+    tableBody.appendChild(row);
+  }
+
+  // Function to load profile data into the table
+  function loadProfileData() {
+    const tableBody = document.getElementById("visemeTable").querySelector("tbody");
+    tableBody.innerHTML = ''; // Clear existing rows
+    profiles[activeProfile].forEach((name) => {
+      const row = document.createElement("tr");
+
+      const nameCell = document.createElement("td");
+      nameCell.style.padding = "8px";
+      nameCell.textContent = name;
+
+      const actionCell = document.createElement("td");
+      actionCell.style.textAlign = "center";
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "✕";
+      deleteButton.style.backgroundColor = "#f44336";
+      deleteButton.style.color = "white";
+      deleteButton.style.border = "none";
+      deleteButton.style.borderRadius = "4px";
+      deleteButton.style.cursor = "pointer";
+      deleteButton.onclick = () => {
+        const index = Array.from(tableBody.children).indexOf(row);
+        profiles[activeProfile].splice(index, 1);
+        row.remove();
+      };
+      actionCell.appendChild(deleteButton);
+
+      row.appendChild(nameCell);
+      row.appendChild(actionCell);
+      tableBody.appendChild(row);
+    });
+  }
+
+  // Function to generate frames (for example)
+  function generateFrames() {
+    // Your logic for generating frames goes here
+    alert("Frames generated for " + activeProfile);
+  }
+
+  function downloadFile(content, filename) {
+    console.log("Downloading file ....")
+    const blob = new Blob([content], { type: "application/json" })
+    const blobURL = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = blobURL
+    link.download = filename || "export.plugin.json"
+    link.click()
+
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  }
+
+  const delay = (delayInms) => {
+    return new Promise(resolve => setTimeout(resolve, delayInms));
+  };
+
+  // Initialize the page
+  loadProfileData();
+
+  // Action buttons...
+  document.getElementById('create').onclick = () => {
+    const group_name = document.getElementById('hvf-id').value;
+    const width = parseInt(document.getElementById('width').value, 10);
+    const height = parseInt(document.getElementById('height').value, 10);
+    const profile = document.getElementById('profile-select').value;
+    const frames = profiles[profile]
+    parent.postMessage({ pluginMessage: { type: 'create-frames', group_name, frames, width, height } }, '*');
+  }
+
+  document.getElementById('export').onclick = () => {
+    const exportButton = document.getElementById('export');
+    const segment_length = parseInt(document.getElementById('resolution').value, 10);
+
+    
+    // Disable the button and show loading text
+    exportButton.disabled = true;
+    exportButton.innerHTML = 'Exporting...';
+    exportButton.style.cursor = "not-allowed";
+
+    requestAnimationFrame(() => {
+        parent.postMessage({ pluginMessage: { type: 'export', maxSegmentLength: segment_length} }, '*');
+    });
+  }
+
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  }
+
+  onmessage = (event) => {
+    let message = event.data.pluginMessage;
+    console.log("Message recived from code.js with type : " + message.type);
+    if (message.type === "download_hvf") {
+      let content = message.hvf_collection;
+      let filename = message.filename;
+      content = JSON.stringify(content); // Convert content to Json
+      downloadFile(content, filename);
+
+      const exportButton = document.getElementById('export');
+      // Enable the button and show default text
+      exportButton.disabled = false;
+      exportButton.innerHTML = 'Export';
+      exportButton.style.cursor = "allowed";
+    }
+
+  }
+</script>
